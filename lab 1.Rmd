@@ -1,0 +1,159 @@
+---
+title: "msia 400 lab 1 Finn Qiao"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/finn/MSIA/msia400-finn")
+```
+
+```{r}
+install.packages("expm")
+library("expm")
+```
+
+# Problem 1
+
+```{r}
+trans_matrix <- read.table('markov100.txt', header=FALSE)
+trans_matrix = as.matrix(trans_matrix)
+```
+
+```{r}
+base_state = c(1, rep(0,99))
+current_state = base_state
+```
+
+1a)
+```{r}
+prob10 = current_state %*% (trans_matrix %^% 10)
+prob10[5]
+```
+
+1b)
+```{r}
+current_state = base_state
+current_state[c(1,2,3)] = 1/3
+prob10 = current_state %*% (trans_matrix %^% 10)
+prob10[10]
+```
+
+1c)
+```{r}
+A <- t(trans_matrix - diag(100))
+A <- rbind(A, rep(1, 100))
+b <- c(rep(0,100), 1)
+steady <- qr.solve(A, b)
+steady[1]
+```
+
+1d)
+```{r}
+B = trans_matrix[2:100,2:100]
+Q = diag(99) - B
+e = c(rep(1,99))
+m = solve(Q) %*% e
+m[99]
+
+```
+
+# Problem 2
+
+```{r}
+web_matrix <- read.table('webtraffic.txt', header=TRUE)
+web_matrix <- as.matrix(web_matrix)
+```
+
+2a)
+```{r}
+Traffic <- colSums(web_matrix)
+Traffic <- matrix(Traffic, nrow = 9, ncol = 9, byrow = TRUE)
+Traffic
+colSums(web_matrix)
+```
+
+2b)
+```{r}
+Traffic[9,1] <- 1000
+Traffic
+```
+
+```{r}
+prob_matrix <- Traffic / rowSums(Traffic)
+prob_matrix
+```
+
+2c)
+```{r}
+A <- t(prob_matrix - diag(9))
+A <- rbind(A, rep(1, 9))
+b <- c(rep(0,9), 1)
+steady <- qr.solve(A, b)
+steady
+```
+
+2d)
+```{r}
+avg_times <- c(0.1, 2, 3, 5, 5, 3, 3, 2)
+avg = avg_times %*% steady[2:9]
+avg
+```
+
+mean first passage time to the end from all other pages
+```{r}
+B = prob_matrix[1:8,1:8]
+Q = diag(8) - B
+e = c(rep(1,8))
+m = solve(Q) %*% e
+m
+```
+
+2e)
+```{r}
+prob_matrix
+```
+
+30% of state 2 to state 3 moves to state 2 to state 6
+20% of state 2 to state 4 moves to state 2 to state 7
+
+```{r}
+new_prob_matrix <- prob_matrix
+current23 <- new_prob_matrix[2,3]
+current24 <- new_prob_matrix[2,4]
+
+increase26 <- current23 * 0.3
+increase27 <- current24 * 0.2
+
+new_prob_matrix[2,3] <- new_prob_matrix[2,3] * 0.7
+new_prob_matrix[2,6] <- new_prob_matrix[2,6] + increase26
+new_prob_matrix[2,4] <- new_prob_matrix[2,4] * 0.8
+new_prob_matrix[2,7] <- new_prob_matrix[2,7] + increase27
+
+A <- t(new_prob_matrix - diag(9))
+A <- rbind(A, rep(1, 9))
+b <- c(rep(0,9), 1)
+new_steady <- qr.solve(A, b)
+new_steady
+```
+
+```{r}
+steady
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
