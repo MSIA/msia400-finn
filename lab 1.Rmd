@@ -25,13 +25,13 @@ base_state = c(1, rep(0,99))
 current_state = base_state
 ```
 
-1a)
+1a) Probability of being in state 5 after 10 transitions.
 ```{r}
 prob10 = current_state %*% (trans_matrix %^% 10)
 prob10[5]
 ```
 
-1b)
+1b) State 10 after 10 transitions.
 ```{r}
 current_state = base_state
 current_state[c(1,2,3)] = 1/3
@@ -39,7 +39,7 @@ prob10 = current_state %*% (trans_matrix %^% 10)
 prob10[10]
 ```
 
-1c)
+1c) Steady state probability of being in state 1.
 ```{r}
 A <- t(trans_matrix - diag(100))
 A <- rbind(A, rep(1, 100))
@@ -48,16 +48,15 @@ steady <- qr.solve(A, b)
 steady[1]
 ```
 
-1d)
+1d) Mean first passage time from state 1 to state 100.
 ```{r}
-B = trans_matrix[2:100,2:100]
+B = trans_matrix[1:99,1:99]
 Q = diag(99) - B
 e = c(rep(1,99))
 m = solve(Q) %*% e
-m[99]
+m[1]
 
 ```
-
 # Problem 2
 
 ```{r}
@@ -65,7 +64,7 @@ web_matrix <- read.table('webtraffic.txt', header=TRUE)
 web_matrix <- as.matrix(web_matrix)
 ```
 
-2a)
+2a) Traffic matrix that counts total traffic.
 ```{r}
 Traffic <- colSums(web_matrix)
 Traffic <- matrix(Traffic, nrow = 9, ncol = 9, byrow = TRUE)
@@ -73,7 +72,7 @@ Traffic
 colSums(web_matrix)
 ```
 
-2b)
+2b) Construct probability matrix.
 ```{r}
 Traffic[9,1] <- 1000
 Traffic
@@ -84,7 +83,7 @@ prob_matrix <- Traffic / rowSums(Traffic)
 prob_matrix
 ```
 
-2c)
+2c) Steady state matrix.
 ```{r}
 A <- t(prob_matrix - diag(9))
 A <- rbind(A, rep(1, 9))
@@ -93,23 +92,18 @@ steady <- qr.solve(A, b)
 steady
 ```
 
-2d)
-```{r}
-avg_times <- c(0.1, 2, 3, 5, 5, 3, 3, 2)
-avg = avg_times %*% steady[2:9]
-avg
-```
+2d) Average time spent on website.
 
 mean first passage time to the end from all other pages
 ```{r}
 B = prob_matrix[1:8,1:8]
 Q = diag(8) - B
-e = c(rep(1,8))
+e = c(0.1, 2, 3, 5, 5, 3, 3, 2)
 m = solve(Q) %*% e
-m
+m[1]
 ```
 
-2e)
+2e) 
 ```{r}
 prob_matrix
 ```
@@ -142,18 +136,8 @@ steady
 ```
 
 ```{r}
-
+var(steady)
+var(new_steady)
 ```
 
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
+The variance of the new steady state decreased and it seems like the traffic across the different pages are more balanced out after adding the links. 
