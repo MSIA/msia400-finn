@@ -9,52 +9,98 @@ knitr::opts_knit$set(root.dir = "/Users/finn/MSIA/msia400-finn")
 ```
 
 ```{r}
+wine_df <- read.table('redwine.txt', header = TRUE)
+dim(wine_df)
+head(wine_df)
+```
 
+Problem 1
+```{r}
+mean(wine_df$RS, na.rm = TRUE)
+mean(wine_df$SD, na.rm = TRUE)
+```
+
+Problem 2
+```{r}
+wine_df.omit <- na.omit(wine_df)
+lmfit <- lm(SD ~ FS, wine_df.omit)
+summary(lmfit)
+```
+
+Problem 3
+```{r}
+missing_SD <- subset(wine_df, complete.cases(wine_df$SD) == FALSE)
+missing_SD$SD <- predict(lmfit, missing_SD)
+missing_SD
 ```
 
 ```{r}
+missing_SD_rows <- as.numeric(rownames(missing_SD))
+wine_df_imputed <- wine_df
+wine_df_imputed[missing_SD_rows,] <- missing_SD
+mean(wine_df_imputed$SD)
+```
 
+Problem 4
+```{r}
+avg.imp <- function(a,avg) {
+  missing <- is.na(a)
+  imputed <- a
+  imputed[missing] <- avg
+  return (imputed)
+}
+
+wine_df_imputed$RS <- avg.imp(wine_df$RS, mean(wine_df$RS, na.rm = TRUE))
+mean(wine_df_imputed$RS)
+```
+
+Prblem 5
+```{r}
+winemodel <- lm(QA ~ FA + VA + CA + RS + CH + FS + SD + DE + PH + SU + AL, wine_df_imputed)
+summary(winemodel)
+```
+
+Problem 6
+
+Based on the coefficients above, the greatest p value belongs to PH. It has a p value of 0.414480 and is highly statistically insignificant.
+
+Problem 7
+```{r}
+library('DAAG')
 ```
 
 ```{r}
+cv.lm(wine_df_imputed, winemodel, m=5)
+```
+Mean square is 0.426.
 
+Problem 8
+```{r}
+ph_mean <- mean(wine_df_imputed$PH)
+ph_sd <- sd(wine_df_imputed$PH)
 ```
 
 ```{r}
-
+ph_lower_bound <- ph_mean - 3 * ph_sd
+ph_upper_bound <- ph_mean + 3 * ph_sd
 ```
 
 ```{r}
-
+redwine2 <- wine_df_imputed[with(wine_df_imputed, !(PH < ph_lower_bound | PH > ph_upper_bound)),]
+dim(redwine2)
 ```
 
+19 rows were dropped.
+
+Problem 9
 ```{r}
-
+winemodel <- lm(QA ~ FA + VA + CA + RS + CH + FS + SD + DE + PH + SU + AL, redwine2)
+summary(winemodel)
 ```
 
-```{r}
+The five most significant attributes seem to be VA, CH, SD, SU, and AL.
 
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
+The previous model with the outliers included seemed to have more significant predictors. The R^2 and F statistic are slightly higher for this new model which suggests a slightly better fit.
 
 ```{r}
 
