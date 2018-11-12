@@ -22,8 +22,9 @@ mean(wine_df$SD, na.rm = TRUE)
 
 Problem 2
 ```{r}
-wine_df.omit <- na.omit(wine_df)
-lmfit <- lm(SD ~ FS, wine_df.omit)
+SD_omit <- wine_df$SD[!is.na(wine_df$SD)]
+FS_omit <- wine_df$FS[!is.na(wine_df$SD)]
+lmfit <- lm(SD_omit ~ FS_omit)
 summary(lmfit)
 ```
 
@@ -101,32 +102,3 @@ summary(winemodel)
 The five most significant attributes seem to be VA, CH, SD, SU, and AL.
 
 The previous model with the outliers included seemed to have more significant predictors. The R^2 and F statistic are slightly higher for this new model which suggests a slightly better fit.
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
