@@ -1,11 +1,16 @@
 ---
-title: "msia 400 lab 1 Finn Qiao"
-output: html_notebook
+title: "msia 400 lab 2 Finn Qiao"
+output:
+  pdf_document:
+    latex_engine: xelatex
 ---
+
+# Lab 2 for MSIA 400
 
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "/Users/finn/MSIA/msia400-finn")
+options(warn=-1)
 ```
 
 ```{r}
@@ -14,25 +19,24 @@ dim(wine_df)
 head(wine_df)
 ```
 
-Problem 1
+## Problem 1
 ```{r}
 mean(wine_df$RS, na.rm = TRUE)
 mean(wine_df$SD, na.rm = TRUE)
 ```
 
-Problem 2
+## Problem 2
 ```{r}
-SD_omit <- wine_df$SD[!is.na(wine_df$SD)]
-FS_omit <- wine_df$FS[!is.na(wine_df$SD)]
-lmfit <- lm(SD_omit ~ FS_omit)
+SD <- wine_df$SD[!is.na(wine_df$SD)]
+FS <- wine_df$FS[!is.na(wine_df$SD)]
+lmfit <- lm(SD ~ FS)
 summary(lmfit)
 ```
 
-Problem 3
+## Problem 3
 ```{r}
 missing_SD <- subset(wine_df, complete.cases(wine_df$SD) == FALSE)
 missing_SD$SD <- predict(lmfit, missing_SD)
-missing_SD
 ```
 
 ```{r}
@@ -41,8 +45,9 @@ wine_df_imputed <- wine_df
 wine_df_imputed[missing_SD_rows,] <- missing_SD
 mean(wine_df_imputed$SD)
 ```
+After imputation of SD, the average value is 46.3.
 
-Problem 4
+## Problem 4
 ```{r}
 avg.imp <- function(a,avg) {
   missing <- is.na(a)
@@ -54,28 +59,30 @@ avg.imp <- function(a,avg) {
 wine_df_imputed$RS <- avg.imp(wine_df$RS, mean(wine_df$RS, na.rm = TRUE))
 mean(wine_df_imputed$RS)
 ```
+After imputation of RS, the average is 2.54.
 
-Prblem 5
+## Problem 5
 ```{r}
 winemodel <- lm(QA ~ FA + VA + CA + RS + CH + FS + SD + DE + PH + SU + AL, wine_df_imputed)
 summary(winemodel)
 ```
 
-Problem 6
+## Problem 6
 
 Based on the coefficients above, the greatest p value belongs to PH. It has a p value of 0.414480 and is highly statistically insignificant.
 
-Problem 7
+## Problem 7
 ```{r}
 library('DAAG')
 ```
 
-```{r}
+The DAAG package was imported to run the cv.lm fit for cross validation. 5 folds was passed in as the parameter.
+```{r results = 'hide'}
 cv.lm(wine_df_imputed, winemodel, m=5)
 ```
 Mean square is 0.426.
 
-Problem 8
+## Problem 8
 ```{r}
 ph_mean <- mean(wine_df_imputed$PH)
 ph_sd <- sd(wine_df_imputed$PH)
@@ -93,7 +100,7 @@ dim(redwine2)
 
 19 rows were dropped.
 
-Problem 9
+## Problem 9
 ```{r}
 winemodel <- lm(QA ~ FA + VA + CA + RS + CH + FS + SD + DE + PH + SU + AL, redwine2)
 summary(winemodel)
@@ -101,4 +108,4 @@ summary(winemodel)
 
 The five most significant attributes seem to be VA, CH, SD, SU, and AL.
 
-The previous model with the outliers included seemed to have more significant predictors. The R^2 and F statistic are slightly higher for this new model which suggests a slightly better fit.
+The previous model with the outliers included seemed to have more significant predictors. The R^2 and F statistic are slightly higher for this new model which suggests a slightly better fit. This later model has the same most significant variables and has less variables in the model which suggests a more stable and better fit.
