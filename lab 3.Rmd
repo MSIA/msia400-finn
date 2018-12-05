@@ -1,0 +1,114 @@
+---
+title: "msia 400 lab 3 Finn Qiao"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Lab 3 for MSIA 400
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/finn/MSIA/msia400-finn")
+options(warn=-1)
+```
+
+## 1a.What is the purpose of doing Markov Chain Monte Carlo (MCMC)?
+
+Monte carlo simulations help in that you are able to obtain an aggregate result from a large number of simulations.
+
+Obtaining sample points from complex distributions can get very complex. By using Markov Chain Monte Carlo, one is able to use markov chains to construct a distribution that is roughly similar to our target distribution.
+
+In other words, Markov Chain Monte Carlo performs random sampling in a probabilistic space to create an approximate distribution. 
+
+## 1b.What is the difference between the Metropolis Algorithm and the Metropolis Hastings Algorithm?
+
+The Metropolis algorithm draws a candidate point from a proposed distribution that has to be symmetric. The Metropolis Hastings algorithm generalizes the Metropolis algorithm in that propopsed distribution does not have to be symmetric.
+
+## 1c.What is the purpose of Ridge regression? What is the purpose of LASSO regression? 
+
+Ridge and lasso are both methods of regularization in which coefficients are reduced through imposing penalties in the model. 
+
+They are primarily used to solve the problem of overfitting where the resultant model has poor predictive and generalization power.
+
+In both types of regularization, a penalty coefficient lambda is chosen to calculate the penalty.
+
+Ridge regression imposes a penalty that is equivalent to the square of the magnitude of the coefficients. It shrinks the model coefficients but the features are never eliminated.
+
+Lasso regression imposes a penalty that is the absolute value of the magnitudes. As it is the absolute value, there is a chance of coefficients being reduced to zero. Lasso regression is thus useful for feature selection as well as it can help penalize coefficients down to zero.
+
+## 1d.State the IIA assumption for Multinomial Logit discrete choice model.
+
+IIA assumption refers to independence of irrelevant alternatives. It refers to the ratio of probabilities of choosing two alternatives is independent of the presence or attributes of any other alternative. 
+
+This assumption helps as the model can be estimated and applied in cases where different members of the population face different sets of alternatives.
+
+## 2a.Fit quantile regression models for the 0.05, 0.10, 0.15, …, 0.90, 0.95th conditional quantiles for Mpg regressed on all the predictors using the quantreg package in R.
+
+```{r}
+gas_df <- read.csv('gas_mileage.csv')
+gas_df
+```
+
+```{r}
+library(quantreg)
+```
+
+```{r}
+fit <- rq(Mpg~.,data=gas_df,tau=seq(0.05,0.95,0.05))
+```
+
+## 2b. Plot the results using the plot function.
+
+```{r}
+plot(fit, mfrow=c(2,4))
+```
+
+
+## 2c. Interpret the results for 3 predictors of your choice.
+
+No._speeds: The effect of this predictor is hard to pinpoint as the the slope coefficient of the predictor fluctuates constantly across the different percentiles. It seems that the quartiles of this predictor is not a very good assessment of the coefficient. The slope coefficients above 0.4 are mostly out of the range however.
+
+The slope coefficient does seem to be consistently a strong negative value.
+
+Carb_barrels: Carb_barrels below 0.6 percentile are mostly out of the range. There seems to be a clear indiciation that the lower the percentile, the higher the slope coefficient for Carb_barrels and a greater positive impact it has on mpg.
+
+Weight: It seems that weights between the .5 and .8 percentiles are likely out of range. For weights below the .5 percentile, there is a slightly less negative slop coefficient. Weights above the .8 percentile seems to indicate a sign change of the coefficient to a positive coefficient.
+
+
+## 2d. Report the summary for the conditional median (0.50th conditional quantile) using the bootstrap method for computing standard errors of regression coefficients.
+
+```{r}
+fit_med <- rq(Mpg~.,data=gas_df,tau=0.5)
+summary(fit_med, se="boot")
+```
+
+## 3a. Fit a support vector machine to predict the response using default setting for kernels and hyper-parameters in the svm function in e1071 package.
+
+```{r}
+car_df <- read.csv('car.csv')
+dim(car_df)
+```
+
+```{r}
+library(e1071)
+```
+
+```{r}
+svm_car = svm(factor(y)~income+car_age, data = car_df)
+summary(svm_car)
+```
+
+## 3b. Plot the result using the plot function.
+
+```{r}
+plot(svm_car, car_df, income~car_age)
+```
+
+## 3c. Predict the response for a family with income = 50, car age = 5.
+
+```{r}
+car_df <- rbind(car_df, c(0, 50, 5))
+predict(svm_car, car_df)[34]
+```
+
